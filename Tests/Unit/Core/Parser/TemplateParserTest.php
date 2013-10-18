@@ -607,6 +607,23 @@ class TemplateParserTest extends \TYPO3\Flow\Tests\UnitTestCase {
 	/**
 	 * @test
 	 */
+	public function escapedShorthandSyntaxIsTreatedAsText() {
+		$mockObjectManager = $this->getMock('TYPO3\Flow\Object\ObjectManagerInterface');
+		$mockObjectManager->expects($this->any())->method('get')->will($this->returnArgument(1));
+		$mockState = $this->getMock('TYPO3\Fluid\Core\Parser\ParsingState');
+
+		$templateParser = $this->getAccessibleMock('TYPO3\Fluid\Core\Parser\TemplateParser', array('objectAccessorHandler', 'arrayHandler', 'textHandler'));
+		$templateParser->injectObjectManager($mockObjectManager);
+		$templateParser->expects($this->at(0))->method('objectAccessorHandler')->with($mockState, 'name', '', '', '');
+		$templateParser->expects($this->at(1))->method('textHandler')->with($mockState, ', Hello \{name}');
+
+		$text = '{name}, Hello \{name}';
+		$templateParser->_call('textAndShorthandSyntaxHandler', $mockState, $text, \TYPO3\Fluid\Core\Parser\TemplateParser::CONTEXT_INSIDE_VIEWHELPER_ARGUMENTS);
+	}
+
+	/**
+	 * @test
+	 */
 	public function arrayHandlerAddsArrayNodeWithProperContentToStack() {
 		$arrayNode = $this->getMock('TYPO3\Fluid\Core\Parser\SyntaxTree\ArrayNode', array(), array(array()));
 		$mockNodeOnStack = $this->getMock('TYPO3\Fluid\Core\Parser\SyntaxTree\AbstractNode', array(), array(), '', FALSE);
@@ -678,5 +695,25 @@ class TemplateParserTest extends \TYPO3\Flow\Tests\UnitTestCase {
 		$templateParser->_set('configuration', $parserConfiguration);
 
 		$templateParser->_call('textHandler', $mockState, 'string');
+	}
+
+	/**
+	 * @test
+	 */
+	public function escapedShorthandSyntaxIsUnescapedInTextHandler() {
+		$textNode = $this->getMock('TYPO3\Fluid\Core\Parser\SyntaxTree\TextNode', array(), array(), '', FALSE);
+
+		$mockObjectManager = $this->getMock('TYPO3\Flow\Object\ObjectManagerInterface');
+		$mockObjectManager->expects($this->once())->method('get')->with('TYPO3\Fluid\Core\Parser\SyntaxTree\TextNode', 'Hello {name}')->will($this->returnValue($textNode));
+
+		$mockNodeOnStack = $this->getMock('TYPO3\Fluid\Core\Parser\SyntaxTree\AbstractNode', array(), array(), '', FALSE);
+		$mockNodeOnStack->expects($this->any())->method('addChildNode')->with($textNode);
+		$mockState = $this->getMock('TYPO3\Fluid\Core\Parser\ParsingState');
+		$mockState->expects($this->any())->method('getNodeFromStack')->will($this->returnValue($mockNodeOnStack));
+
+		$templateParser = $this->getAccessibleMock('TYPO3\Fluid\Core\Parser\TemplateParser', array('callInterceptor'));
+		$templateParser->injectObjectManager($mockObjectManager);
+
+		$templateParser->_call('textHandler', $mockState, 'Hello \{name}');
 	}
 }
