@@ -76,27 +76,27 @@ class CheckboxViewHelper extends AbstractFormFieldViewHelper {
 
 		$nameAttribute = $this->getName();
 		$valueAttribute = $this->getValue();
-		if ($this->isObjectAccessorMode()) {
-			if ($this->hasMappingErrorOccurred()) {
-				$propertyValue = $this->getLastSubmittedFormData();
-			} else {
-				$propertyValue = $this->getPropertyValue();
-			}
-
-			if ($propertyValue instanceof \Traversable) {
-				$propertyValue = iterator_to_array($propertyValue);
-			}
-			if (is_array($propertyValue)) {
-				if ($checked === NULL) {
-					$checked = in_array($valueAttribute, $propertyValue);
-				}
-				$nameAttribute .= '[]';
-			} elseif ($multiple === TRUE) {
-				$nameAttribute .= '[]';
-			} elseif ($checked === NULL && $propertyValue !== NULL) {
-				$checked = (boolean)$propertyValue === (boolean)$valueAttribute;
-			}
+		$propertyValue = NULL;
+		if ($this->hasMappingErrorOccurred()) {
+			$propertyValue = $this->getLastSubmittedFormData();
+		} else {
+			$propertyValue = $this->getPropertyValue();
 		}
+
+		if ($propertyValue instanceof \Traversable) {
+			$propertyValue = iterator_to_array($propertyValue);
+		}
+		if (is_array($propertyValue)) {
+			if ($checked === NULL) {
+				$checked = in_array($valueAttribute, $propertyValue);
+			}
+			$nameAttribute .= '[]';
+		} elseif ($multiple === TRUE) {
+			$nameAttribute .= '[]';
+		} elseif ($checked === NULL && $propertyValue !== NULL) {
+			$checked = (boolean)$propertyValue === (boolean)$valueAttribute;
+		}
+
 
 		$this->registerFieldNameForFormTokenGeneration($nameAttribute);
 		$this->tag->addAttribute('name', $nameAttribute);
