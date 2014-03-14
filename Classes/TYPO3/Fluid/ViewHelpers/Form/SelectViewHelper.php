@@ -109,6 +109,12 @@ class SelectViewHelper extends AbstractFormFieldViewHelper {
 	protected $translator;
 
 	/**
+	 * @Flow\Inject
+	 * @var \TYPO3\Flow\I18n\Service
+	 */
+	protected $localizationService;
+
+	/**
 	 * @var string
 	 */
 	protected $tagName = 'select';
@@ -244,7 +250,8 @@ class SelectViewHelper extends AbstractFormFieldViewHelper {
 			$options[$key] = $value;
 		}
 		if ($this->arguments['sortByOptionLabel']) {
-			asort($options);
+			$collator = new \Collator((string)$this->localizationService->getConfiguration()->getCurrentLocale());
+			$collator->asort($options);
 		}
 		return $options;
 	}
