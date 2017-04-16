@@ -544,6 +544,9 @@ class TemplateParser {
 		}
 
 		foreach (array_keys($actualArguments) as $argumentName) {
+			if (substr($argumentName, 0, 6) == 'xmlns:') {
+				continue;
+			}
 			if (!in_array($argumentName, $expectedArgumentNames)) {
 				throw new Exception('Argument "' . $argumentName . '" was not registered.', 1237823695);
 			}
