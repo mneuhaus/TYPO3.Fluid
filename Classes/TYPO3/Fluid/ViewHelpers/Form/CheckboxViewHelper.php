@@ -88,7 +88,7 @@ class CheckboxViewHelper extends AbstractFormFieldViewHelper {
 			}
 			if (is_array($propertyValue)) {
 				if ($checked === NULL) {
-					$checked = in_array($valueAttribute, $propertyValue);
+					$checked = in_array($valueAttribute, $propertyValue) || array_key_exists($valueAttribute, $propertyValue);
 				}
 				$nameAttribute .= '[]';
 			} elseif ($multiple === TRUE) {
