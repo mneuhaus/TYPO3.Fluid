@@ -77,15 +77,17 @@ class RadioViewHelper extends AbstractFormFieldViewHelper {
 
 		$nameAttribute = $this->getName();
 		$valueAttribute = $this->getValue();
-		if ($checked === NULL && $this->isObjectAccessorMode()) {
+		if ($checked === NULL) {
 			if ($this->hasMappingErrorOccurred()) {
 				$propertyValue = $this->getLastSubmittedFormData();
-			} else {
+			} elseif ($this->isObjectAccessorMode()) {
 				$propertyValue = $this->getPropertyValue();
 			}
 
-			// no type-safe comparison by intention
-			$checked = $propertyValue == $valueAttribute;
+			if (isset($propertyValue)) {
+				// no type-safe comparison by intention
+				$checked = $propertyValue == $valueAttribute;
+			}
 		}
 
 		$this->registerFieldNameForFormTokenGeneration($nameAttribute);
