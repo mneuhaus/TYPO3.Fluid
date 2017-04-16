@@ -11,6 +11,8 @@ namespace TYPO3\Fluid\Tests\Unit\ViewHelpers\Form;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
+use TYPO3\Flow\I18n\Configuration as I18nConfiguration;
+
 require_once(__DIR__ . '/Fixtures/EmptySyntaxTreeNode.php');
 require_once(__DIR__ . '/Fixtures/Fixture_UserDomainClass.php');
 require_once(__DIR__ . '/FormFieldViewHelperBaseTestcase.php');
@@ -112,15 +114,26 @@ class SelectViewHelperTest extends \TYPO3\Fluid\Tests\Unit\ViewHelpers\Form\Form
 	 * @test
 	 */
 	public function optionsAreSortedByLabelIfSortByOptionLabelIsSet() {
+		$mockI18nService = $this->getMock('TYPO3\Flow\I18n\Service');
+		$mockI18nConfiguration = new I18nConfiguration('en');
+		$mockI18nService->expects($this->once())->method('getConfiguration')->will($this->returnValue($mockI18nConfiguration));
+		$this->inject($this->viewHelper, 'localizationService', $mockI18nService);
+
 		$this->tagBuilder->expects($this->once())->method('addAttribute')->with('name', 'myName');
 		$this->viewHelper->expects($this->once())->method('registerFieldNameForFormTokenGeneration')->with('myName');
-		$this->tagBuilder->expects($this->once())->method('setContent')->with('<option value="value1">label1</option>' . chr(10) . '<option value="value2" selected="selected">label2</option>' . chr(10) . '<option value="value3">label3</option>' . chr(10));
+		$this->tagBuilder->expects($this->once())->method('setContent')->with(implode(chr(10), array(
+			'<option value="sample">Äquator</option>',
+			'<option value="value1">label1</option>',
+			'<option value="value2" selected="selected">label2</option>',
+			'<option value="value3">label3</option>',
+			'')));
 		$this->tagBuilder->expects($this->once())->method('render');
 
 		$this->arguments['options'] = array(
 			'value3' => 'label3',
 			'value1' => 'label1',
-			'value2' => 'label2'
+			'value2' => 'label2',
+			'sample' => 'Äquator'
 		);
 
 		$this->arguments['value'] = 'value2';
