@@ -252,6 +252,9 @@ abstract class AbstractTemplateView extends AbstractView {
 				return '';
 			}
 			$this->startRendering($renderingTypeOnNextLevel, $parsedTemplate, $renderingContext);
+			if (!method_exists($parsedTemplate, $methodNameOfSection)) {
+				throw new InvalidSectionException(sprintf('Could not render unknown section "%s" in %s used by %s and defined in "%s" layout.', $sectionName, get_class($this), $this->controllerContext->getRequest()->getControllerObjectName(), $parsedTemplate->getLayoutName($renderingContext)), 1375962436);
+			}
 			$output = $parsedTemplate->$methodNameOfSection($renderingContext);
 			$this->stopRendering();
 		} else {
