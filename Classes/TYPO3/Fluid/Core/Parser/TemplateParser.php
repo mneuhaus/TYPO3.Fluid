@@ -134,7 +134,7 @@ class TemplateParser {
 	 */
 	static public $SPLIT_PATTERN_SHORTHANDSYNTAX = '/
 		(
-			{                                # Start of shorthand syntax
+			(?<!\\\){                        # Start of shorthand syntax (does not match escaped shorthand syntax)
 				(?:                          # Shorthand syntax is either composed of...
 					[a-zA-Z0-9\->_:,.()]     # Various characters
 					|"(?:\\\"|[^"])*"        # Double-quoted strings
@@ -890,6 +890,7 @@ class TemplateParser {
 	 * @return void
 	 */
 	protected function textHandler(ParsingState $state, $text) {
+		$text = str_replace('\\{', '{', $text);
 		/** @var $node TextNode */
 		$node = $this->objectManager->get('TYPO3\Fluid\Core\Parser\SyntaxTree\TextNode', $text);
 		$this->callInterceptor($node, InterceptorInterface::INTERCEPT_TEXT, $state);
